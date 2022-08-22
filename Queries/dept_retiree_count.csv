@@ -1,0 +1,28 @@
+-- drop table each time we want to rerun the code
+drop table if exists retiring_depts;
+
+-- select columns from employees+titles tables
+Select distinct on (e.emp_no) e.emp_no, e.first_name, e.last_name,
+d.dept_name, de.from_date, de.to_date
+-- create new db called 'retirement_titles'
+into retiring_depts
+from employees e
+join dept_emp de on e.emp_no=de.emp_no
+join departments d on de.dept_no=d.dept_no
+-- limit to employees aged 65+ at time of assignment
+where (e.birth_date between '1952-01-01' AND '1955-12-31')
+and de.to_date = '9999-01-01'
+order by e.emp_no;
+
+-- check results
+Select *
+from retiring_depts;
+
+drop table if exists dept_retiree_count;
+select rd.dept_name, count(rd.emp_no) AS "Eligible Retirees"
+into dept_retiree_count
+from retiring_depts rd
+group by rd.dept_name
+order by "Eligible Retirees" desc;
+
+select * from dept_retiree_count;
